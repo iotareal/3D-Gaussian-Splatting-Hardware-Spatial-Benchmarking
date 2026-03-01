@@ -1,0 +1,24 @@
+# --- 3DGS Research Data (The heavy stuff) ---
+# Ignore raw photos and COLMAP data
+datasets/
+
+# Ignore all trained models and splat files (.ply)
+# This prevents pushing 1GB+ models to GitHub
+gaussian-splatting/output/
+**/iteration_*/
+
+# --- Environment & Binaries ---
+# Ignore the SIBR viewer and its massive DLLs (like cudart64_12.dll)
+viewers/
+SIBR/
+*.dll
+*.exe
+
+# --- Python & System Junk ---
+__pycache__/
+*.pyc
+.venv/
+.env
+.vscode/
+.idea/
+.DS_Store
