@@ -27,4 +27,25 @@ Understanding the pipeline from preprocessing to Differentiable Rasterization:
 - [ ] **Phase 6:** Publish comprehensive data visualizations and FYP Research Paper.
 
 ## 🛠️ Setup & Installation
-*(Add your conda environment setup commands and CUDA requirements here so your collaborators can get started).*
+**Note:** The versions of all the tools and utils are crucial to run the engine as well as the renderer, if you did not match the version listed under this note you will likely face major errors which could take days to fix.
+
+### Step #0 Download and maintain a directory
+**1. Clone this Repository**
+```
+git clone --recursive https://github.com/iotareal/3D-Gaussian-Splatting-Hardware-Spatial-Benchmarking.git
+```
+
+**2. Download [COLMAP v3.8](https://github.com/colmap/colmap/releases/tag/3.8)**\
+Download CUDA version, non-CUDA version is not for this project
+
+**3. Download Latest version of [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)**\
+If low on space use Miniconda instead of Anaconda
+
+**4. Download Visual Studio 19**\
+Version is crucial here we need correct version of MSVC C++ compiler which can couple with CUDA Toolkit, There is no official source for visual studio 19, however you can look up for third-party installer avaliable on various websites, DO NOT INSTALL LATEST VISUAL STUDIO.
+
+**5. Download [CUDA Toolkit 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)**\
+Exact version **11.8** is required.
+
+**6. Download Latest version of [SIBR Viewer](https://sibr.gitlabpages.inria.fr/download.html)**\
+Select Win64, Release under the "Core" section.
