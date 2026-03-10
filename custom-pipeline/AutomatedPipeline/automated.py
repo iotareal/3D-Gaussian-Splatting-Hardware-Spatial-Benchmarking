@@ -1,11 +1,12 @@
 import subprocess
-
+from pathlib import Path
 def convert_point_cloud(dataset_path):
     # RUNS
     # python gaussian-splatting/convert.py -s <path_to_dataset>
     
-    if(dataset_path/"sparse").is_dir():
+    if(Path(dataset_path)/"sparse").is_dir():
         print("SfM data found. Skipping conversion operation")
+        return
         
     cmd=("python","gaussian-splatting/convert.py","-s",str(dataset_path))
     subprocess.run(cmd,check=True)
