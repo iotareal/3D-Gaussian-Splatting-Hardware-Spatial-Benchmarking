@@ -1,0 +1,5 @@
+{
+    "output_path": "D:/Projects/3DGS/output/train_test",
+    "dataset_path": "D:/Projects/3DGS/datasets/train",
+    "sibr_viewer": "D:/Projects/3DGS/viewers/bin/SIBR_gaussianViewer_app.exe"
+}
