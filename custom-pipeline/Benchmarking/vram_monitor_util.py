@@ -5,7 +5,7 @@ from pathlib import Path
 
 class VRAMMonitor:
     def __init__(self):
-        log_path = Path(f"custom-pipeline/Benchmarking/VRAM logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
+        log_path = Path(f"custom-pipeline/Benchmarking/VRAM-logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
     
         os.makedirs(log_path.parent, exist_ok=True)
     
