@@ -1,7 +1,7 @@
 # --- 3DGS Research Data (The heavy stuff) ---
 # Ignore raw photos and COLMAP data
 datasets/
-
+custom-pipeline/Benchmarking/VRAM logs
 # Ignore all trained models and splat files (.ply)
 # This prevents pushing 1GB+ models to GitHub
 gaussian-splatting/output/
