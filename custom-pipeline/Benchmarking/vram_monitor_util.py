@@ -2,10 +2,11 @@ import subprocess
 from datetime import datetime 
 import os
 from pathlib import Path
+from Benchmarking.visualize_vram import generate_vram_graph
 
 class VRAMMonitor:
-    def __init__(self):
-        log_path = Path(f"custom-pipeline/Benchmarking/VRAM-logs/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")
+    def __init__(self,filename=datetime.now().strftime('%Y-%m-%d_%H-%M-%S')):
+        log_path = Path(f"custom-pipeline/Benchmarking/VRAM-logs/{filename}.csv")
     
         os.makedirs(log_path.parent, exist_ok=True)
     
@@ -37,3 +38,4 @@ class VRAMMonitor:
             self.file_handle.close() # This forces the final 'flush' to disk
             
         print(f"VRAM log finalized: {self.log_name}")
+        generate_vram_graph(self.log_name)
