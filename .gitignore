@@ -7,7 +7,6 @@ gaussian-splatting/output/
 # --- Environment & Binaries ---
 # Ignore the SIBR viewer and its massive DLLs
 .vscode/
-output/
 SIBR/
 *.dll
 *.exe
