@@ -29,7 +29,7 @@ Understanding the pipeline from preprocessing to Differentiable Rasterization:
 ## 🛠️ Setup & Installation
 **Note:** The versions of all the tools and utils are crucial to run the engine as well as the renderer, if you did not match the version listed under this note you will likely face major errors which could take days to fix.
 
-### Step #0 Download and maintain a directory
+### Download Dependencies
 **1. Clone this Repository**
 ```
 git clone --recursive https://github.com/iotareal/3D-Gaussian-Splatting-Hardware-Spatial-Benchmarking.git
@@ -49,3 +49,96 @@ Exact version **11.8** is required.
 
 **6. Download Latest version of [SIBR Viewer](https://sibr.gitlabpages.inria.fr/download.html)**\
 Select Win64, Release under the "Core" section.
+
+**7. Download [MSVC C++ Redistributable (x64)](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-supported-redistributable-version)**\
+This project require OS to support 64-bit Architecture.
+
+**8. Install Everything you just Downloaded**\
+The order is important here:
+<ol>
+    <li> Clone the <b>Repository</b></li>
+    <li> 
+    Install <b>Visual Studio 19</b> (To prevent any difficulties installing in default directories)
+    </br></br>
+    <b>🖼️ Select Desktop Development with C++ shown in image</b> 
+    </br></br>
+    <img src="./assets/readme_assets/VS19_1.JPG" alt="Image showing installation preferences for VS 19">
+    </br></br>
+    <b>🖼️ Make sure highlighted components are selected</b> (Do not untick which are selected by default) 
+    </br></br>
+    <img src="./assets/readme_assets/VS19_2.PNG" alt="Image showing installation preferences for VS 19">
+    </li>
+    </br></br>
+    <li>Install <b>CUDA Toolkit 11.8</b></br>
+    Make sure you did <b>NOT</b> get message that says <b>"Visual Studio Installation not found"</b>, if so then it means a reboot is required or Visual Studio did not installed properly.
+    </li>
+    </br>
+    <li>Install <b>COLMAP v3.8</b><br>
+    COLMAP needed to be <b>Extracted</b> and <b>Stored</b> some folder then navigate to its content
+    <br><br>
+    <b>🖼️ Following is the content you should be seeing</b> copy the path for this folder for me it will be <b>"C:\Dev\COLMAP-3.8-windows-cuda\lib"</b>
+    <br><br>
+    <img src="./assets/readme_assets/Colmap1.PNG" alt="Image showing COLMAP folder contents">
+    <br><br>
+    🖼️ Search <b>"Env"</b> on your search bar and Select<b>"Edit the System Environment Variables"</b>
+    <br><br>
+    <img src="./assets/readme_assets/env1.PNG" alt="Image showing edit environment variables">
+    <br><br>
+    🖼️ Select <b>"Environment Variables"</b>
+    <br><br>
+    <img src="./assets/readme_assets/env2.PNG" alt="Image showing edit environment variables">
+    <br><br>
+    🖼️ In the <b>"System variables"</b> section, Select <b>"Path"</b> and then Click <b>"Edit.."</b>
+    <br><br>
+    <img src="./assets/readme_assets/env3.PNG" alt="Image showing edit environment variables">
+    <br><br>
+    🖼️ Click <b>"New"</b> then paste the copied path and then click  <b>"OK"</b>
+    <br><br>
+    <img src="./assets/readme_assets/env4.PNG" alt="Image showing edit environment variables">
+    <br><br>
+    </li>
+</ol>
+
+**Note:** After installing the dependencies it is highly recommended to ***reboot you system*** to launch all the services associated with the packages you just installed at kernel level.
+
+### Setup Conda Environment
+**1. Create and Activate Environment**
+```cmd
+conda create -n gaussian_splatting python=3.10 -y
+conda activate gaussian_splatting
+```
+**Note:** From here onwards make sure when you run commands your environment is activated, I recommend using **Command Prompt** or **Windows Powershell** as when environment is active it will explicitly show its name on left-hand-side of current input stream, use command: `conda activate <env_name>` also its advisable to run all commands from project's root (`./`) folder.
+
+\
+**2. Install the Windows-stable PyTorch for CUDA 11.8**
+```cmd
+conda install pytorch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+```
+\
+**3. Install the other requirements from the folder**
+```cmd
+pip install tqdm plyfile
+```
+\
+**4. Initialize the VS 2019 compiler for this session**\
+For this step, you need to locate your **Microsoft Visual Studio** installation folder (which is by default gets stored in ***C:/Program Files (x86)***) if your installation is not default you have to manually locate the directory and then alter the command mentioned below and then run it on your terminal.
+```cmd
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+```
+\
+**5. Use the SDK and ignore build isolation**
+```cmd
+set DISTUTILS_USE_SDK=1
+```
+\
+**6. Install the rasterizer**
+```cmd
+pip install ./submodules/diff-gaussian-rasterization --no-build-isolation
+```
+\
+**7. Install the neighbor-search tool**
+```cmd
+pip install ./submodules/simple-knn --no-build-isolation
+```
+
+

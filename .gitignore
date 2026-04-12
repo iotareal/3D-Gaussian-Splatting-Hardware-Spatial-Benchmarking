@@ -1,7 +1,6 @@
 # --- 3DGS Research Data (The heavy stuff) ---
 # Ignore raw photos and COLMAP data
 datasets/
-custom-pipeline/Benchmarking/VRAM-logs
 gaussian-splatting/output/
 **/iteration_*/
 

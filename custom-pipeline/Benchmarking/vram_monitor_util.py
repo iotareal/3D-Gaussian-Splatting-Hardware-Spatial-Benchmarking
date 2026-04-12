@@ -6,7 +6,7 @@ from Benchmarking.visualize_vram import generate_vram_graph
 
 class VRAMMonitor:
     def __init__(self,filename=datetime.now().strftime('%Y-%m-%d_%H-%M-%S')):
-        log_path = Path(f"custom-pipeline/Benchmarking/VRAM-logs/{filename}.csv")
+        log_path = Path(f"./custom-pipeline/Benchmarking/VRAM-logs/{filename}.csv")
     
         os.makedirs(log_path.parent, exist_ok=True)
     
