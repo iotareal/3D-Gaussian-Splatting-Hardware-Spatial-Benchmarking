@@ -1,9 +1,12 @@
 import subprocess
 import sys
+import os
 from pathlib import Path
 
+from Benchmarking.training_time import BenchmarkTime
+from Benchmarking.vram_monitor_util import VRAMMonitor
 
-GS_ROOT = Path("D:/Projects/3DGS/gaussian-splatting")
+GS_ROOT = Path(os.getcwd()) /"gaussian-splatting"
 
 def convert_point_cloud(dataset_path):
     # RUNS
@@ -25,10 +28,12 @@ def convert_point_cloud(dataset_path):
     except subprocess.CalledProcessError as e:
         print(f"\nPipeline failed to run COLMAP: {e}")
 
-def train(dataset_path,output_path,iterations=30000,save_points=5000):
+def train(dataset_path,output_path,filename,iterations=30000,checkpoints=5000):
     # RUNS
     # python gaussian-splatting/train.py -s <path_to_dataset> -m <path_to_output_folder> --iterations 30000
-    save_points = [str(i) for i in range(save_points, int(iterations) + 1) if i%save_points == 0]
+
+    # save_points = chkpt 1 chkpt 2 .... chkpt n
+    checkpoints = list(str(i) for i in range(1,iterations) if i%checkpoints == 0)
     cmd = [
         sys.executable,  
         str(Path(GS_ROOT) / "train.py"),
@@ -36,16 +41,14 @@ def train(dataset_path,output_path,iterations=30000,save_points=5000):
         "-m", str(output_path),
         "--iterations", str(iterations),
         "--eval",
-        "--save_iterations", save_points
+        "--save_iterations"
     ]
-    # FIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIX
-    #FIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIX
-    #FIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIXFIX
-    cmd.extend(save_points)
-    # cmd=f'python "{str(Path(GS_ROOT/"train.py"))}" -s "{str(dataset_path)}" -m "{str(output_path)}" --iterations "{str(iterations)}" --eval --save_iterations {save_points}'
-    result = subprocess.run(cmd,shell=True)
-    if result.returncode == 0:
-        evaluate_model(output_path)
+    cmd.extend(checkpoints)
+    checkpoints.append(iterations)
+    with BenchmarkTime(),(VRAMMonitor(filename) if filename else VRAMMonitor()):
+        result = subprocess.run(cmd,shell=True)
+    if result.returncode == 0:     
+        evaluate_model(output_path,checkpoints)
 
 def launch_viewer(output_path,sibr_viewer):
     # RUNS
@@ -53,12 +56,24 @@ def launch_viewer(output_path,sibr_viewer):
     cmd=(str(sibr_viewer),"-m",str(output_path))
     subprocess.run(cmd,check=True)
 
-def evaluate_model(output_path):
-    
-    print("\n--- Rendering Test Views for All Checkpoints ---")
-    render_cmd = f'python "{str(Path(GS_ROOT / "render.py"))}" -m "{output_path}" --skip_train'
-    subprocess.run(render_cmd, shell=True, check=True, cwd=str(GS_ROOT))
-    
-    print("\n--- Calculating PSNR/SSIM/LPIPS ---")
-    metrics_cmd = f'python "{str(Path(GS_ROOT / "metrics.py"))}" -m "{output_path}"'
-    subprocess.run(metrics_cmd, shell=True, check=True, cwd=str(GS_ROOT))
+def evaluate_model(output_path,save_points):
+    for checkpoint in save_points:
+        print(f"\n--- Rendering Test Views for Checkpoint: {checkpoint} ---")
+        # cmd = f'python "{str(Path(GS_ROOT / "render.py"))}" -m "{output_path}" --skip_train'
+        eval_cmd = [
+            sys.executable,
+            str(Path(GS_ROOT / "render.py")),
+            "-m",output_path,
+            "--iteration",str(checkpoint),
+            "--skip_train"
+        ]
+        subprocess.run(eval_cmd, shell=True)
+        
+    print(f"\n--- Calculating PSNR/SSIM/LPIPS for Checkpoint: {checkpoint} ---")
+    # metrics_cmd = f'python "{str(Path(GS_ROOT / "metrics.py"))}" -m "{output_path}"'
+    metrics_cmd = [
+        sys.executable,
+        str(Path(GS_ROOT / "metrics.py")),
+        "-m",output_path
+    ]
+    subprocess.run(metrics_cmd, shell=True)

@@ -1,7 +1,5 @@
 from AutomatedPipeline import automated as auto
 from AutomatedPipeline import file_handler as fh
-from Benchmarking.training_time import BenchmarkTime
-from Benchmarking.vram_monitor_util import VRAMMonitor
 
 from AutomatedPipeline.file_handler import DATASET_PATH_LABEL
 from AutomatedPipeline.file_handler import SIBR_APP__PATH_LABEL
@@ -122,9 +120,8 @@ def main_menu():
                 print("Invalid Value entered: Checkpoints will be saved to default 5,000 ")
                 savePoints=5,000
             
-            filename = input("Enter the name of CSV file record(default=current_timestamp): ")
-            with BenchmarkTime(),(VRAMMonitor(filename) if filename else VRAMMonitor()):
-                auto.train(DATASET_PATH_VARIABLE,OUTPUT_PATH_VARIABLE,iterations,savePoints)
+            vram_csv_name = input("Enter the name of CSV file record(default=current_timestamp): ")
+            auto.train(DATASET_PATH_VARIABLE,OUTPUT_PATH_VARIABLE,vram_csv_name,iterations,savePoints)
             
         
         elif choice==3:

@@ -2,6 +2,8 @@ from tkinter import filedialog
 from pathlib import Path
 import json
 import tkinter as tk
+
+
 # Schema
 SIBR_APP__PATH_LABEL="sibr_viewer"
 DATASET_PATH_LABEL="dataset_path"
@@ -23,7 +25,7 @@ def locate_dataset(custom_title="Locate \'dataset\' folder"):
     print(f"Path located: {path}\nMake sure all images are in \"\input\" folder")
     store_paths(path,identifier=DATASET_PATH_LABEL)
     print(f"{DATASET_PATH_LABEL} saved to paths.json")
-    
+
 
 def locate_output(custom_title="Locate \'output\' folder") -> str:
     root = tk.Tk()
@@ -40,6 +42,7 @@ def locate_output(custom_title="Locate \'output\' folder") -> str:
     print(f"Path located: {path}\nOutput will be stored here")
     store_paths(path,identifier=OUTPUT_PATH_LABEL)
     print(f"{OUTPUT_PATH_LABEL} saved to paths.json")
+
 
 def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
     root = tk.Tk()
@@ -82,7 +85,7 @@ def store_paths(path,identifier:str):
         json.dump(data, f, indent=4)
         
     print(f"{identifier} = {path} Saved Successfully to paths.json")
-            
+
 def check_paths(data:dict):
     path_variables=data.keys()
     if DATASET_PATH_LABEL not in path_variables:

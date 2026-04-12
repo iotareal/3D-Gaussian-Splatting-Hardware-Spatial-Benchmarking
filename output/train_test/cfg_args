@@ -1,1 +1,0 @@
-Namespace(sh_degree=3, source_path='D:\\Projects\\3DGS\\datasets\\pokemon', model_path='D:/Projects/3DGS/output/train_test', images='images', depths='', resolution=-1, white_background=False, train_test_exp=False, data_device='cuda', eval=False)
