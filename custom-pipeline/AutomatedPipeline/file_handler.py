@@ -1,14 +1,24 @@
 from tkinter import filedialog
 from pathlib import Path
-import json
+from AutomatedPipeline.local_paths import LocalPaths
+import pickle
 import tkinter as tk
 
-
-# Schema
-SIBR_APP__PATH_LABEL="sibr_viewer"
-DATASET_PATH_LABEL="dataset_path"
-OUTPUT_PATH_LABEL="output_path"
-
+def __get_paths() -> LocalPaths:
+    config_file = Path("custom-pipeline")/Path("path_state.pkl")
+    if not config_file.exists():
+        with open(config_file,'x'):
+            pass
+    
+    with open(config_file,"rb") as file:
+        try:
+            return pickle.load(file)
+        except EOFError:
+            print("\n--- New Environment detected: You may need to specify directories ---")
+            return LocalPaths()
+        
+#Initializing Paths
+LOADED_PATHS = __get_paths()
 
 def locate_dataset(custom_title="Locate \'dataset\' folder"):
     root = tk.Tk()
@@ -22,10 +32,11 @@ def locate_dataset(custom_title="Locate \'dataset\' folder"):
         print("You did not selected any path for dataset, path left unchanged")
         return
     
-    print(f"Path located: {path}\nMake sure all images are in \"\input\" folder")
-    store_paths(path,identifier=DATASET_PATH_LABEL)
-    print(f"{DATASET_PATH_LABEL} saved to paths.json")
-
+    LOADED_PATHS.dataset_folder = Path(path)
+    print(f"Path saved: {LOADED_PATHS.get_dataset_path()}")
+    
+def get_dataset():
+    return LOADED_PATHS.get_dataset_path()
 
 def locate_output(custom_title="Locate \'output\' folder") -> str:
     root = tk.Tk()
@@ -39,10 +50,11 @@ def locate_output(custom_title="Locate \'output\' folder") -> str:
         print("You did not selected any path for output, path left unchanged")
         return
     
-    print(f"Path located: {path}\nOutput will be stored here")
-    store_paths(path,identifier=OUTPUT_PATH_LABEL)
-    print(f"{OUTPUT_PATH_LABEL} saved to paths.json")
-
+    LOADED_PATHS.output_folder = Path(path)
+    print(f"Path saved: {LOADED_PATHS.get_output_path()}")
+    
+def get_output():
+    return LOADED_PATHS.get_output_path()
 
 def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
     root = tk.Tk()
@@ -56,41 +68,14 @@ def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
         print("You did not selected any path for SIBR viewer, path left unchanged")
         return
     
-    print(f"Path Located: {path}")
-    store_paths(path,identifier=SIBR_APP__PATH_LABEL)
-    print(f"{SIBR_APP__PATH_LABEL} saved to paths.json")
+    LOADED_PATHS.sibr_app = Path(path)
+    print(f"Path saved: {LOADED_PATHS.get_sibr_path()}")
 
+def get_sibr():
+    return LOADED_PATHS.get_sibr_path()
 
-def get_paths():
-    config_file = Path("custom-pipeline/paths.json")
-    if config_file.exists():
-        with open(config_file, "r") as f:
-            try:
-                data = json.load(f)
-                return data
-            except json.JSONDecodeError:
-                data = {}
-
-def store_paths(path,identifier:str):
-    config_file = Path("custom-pipeline/paths.json")
-    data = get_paths()
-    
-    data[identifier] = path
-    
-    if not config_file.exists():
-        with open(config_file, "x") as f:
-            pass
-        
-    with open(config_file, "w") as f:
-        json.dump(data, f, indent=4)
-        
-    print(f"{identifier} = {path} Saved Successfully to paths.json")
-
-def check_paths(data:dict):
-    path_variables=data.keys()
-    if DATASET_PATH_LABEL not in path_variables:
-        locate_dataset(custom_title="Dataset path not found please locate dataset folder")
-    if OUTPUT_PATH_LABEL not in path_variables:
-        locate_output(custom_title="output path not found please locate output/<model_name> folder")
-    if SIBR_APP__PATH_LABEL not in path_variables:
-        locate_SIBR(custom_title="Path to SIBR app not found please locate SIBR viewer Application")
+def save_paths():
+    config_file = Path("custom-pipeline")/Path("path_state.pkl")
+    with open(config_file,'wb') as file:
+        pickle.dump(LOADED_PATHS,file)
+        print("Paths saved to \'path_state.pkl\'.")

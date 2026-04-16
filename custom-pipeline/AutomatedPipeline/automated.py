@@ -32,6 +32,11 @@ def train(dataset_path,output_path,filename,iterations=30000,checkpoints=5000):
     # RUNS
     # python gaussian-splatting/train.py -s <path_to_dataset> -m <path_to_output_folder> --iterations 30000
 
+    # CHANGE CHECKPOINT LOGIC
+    # CHANGE CHECKPOINT LOGIC
+    # CHANGE CHECKPOINT LOGIC
+    # CHANGE CHECKPOINT LOGIC
+    # CHANGE CHECKPOINT LOGIC
     # save_points = chkpt 1 chkpt 2 .... chkpt n
     checkpoints = list(str(i) for i in range(1,iterations) if i%checkpoints == 0)
     cmd = [

@@ -1,30 +1,24 @@
 from AutomatedPipeline import automated as auto
 from AutomatedPipeline import file_handler as fh
 
-from AutomatedPipeline.file_handler import DATASET_PATH_LABEL
-from AutomatedPipeline.file_handler import SIBR_APP__PATH_LABEL
-from AutomatedPipeline.file_handler import OUTPUT_PATH_LABEL
 
 # Path variables
 
-SIBR_APP__PATH_VARIABLE = None
-DATASET_PATH_VARIABLE = None
-OUTPUT_PATH_VARIABLE = None
 
-def get_json_paths():
-    data=fh.get_paths()
-    fh.check_paths(data)
-    global SIBR_APP__PATH_VARIABLE
-    global DATASET_PATH_VARIABLE
-    global OUTPUT_PATH_VARIABLE
+# def get_json_paths():
+#     data=fh.get_paths()
+#     fh.check_paths(data)
+#     global SIBR_APP__PATH_VARIABLE
+#     global DATASET_PATH_VARIABLE
+#     global fh.get_output()
     
-    SIBR_APP__PATH_VARIABLE = data[SIBR_APP__PATH_LABEL]
-    DATASET_PATH_VARIABLE = data[DATASET_PATH_LABEL]
-    OUTPUT_PATH_VARIABLE = data[OUTPUT_PATH_LABEL]
+#     SIBR_APP__PATH_VARIABLE = data[SIBR_APP__PATH_LABEL]
+#     DATASET_PATH_VARIABLE = data[DATASET_PATH_LABEL]
+#     fh.get_output() = data[OUTPUT_PATH_LABEL]
     
-    # print(f"[DEBUG]: {SIBR_APP__PATH_VARIABLE}")
-    # print(f"[DEBUG]: {DATASET_PATH_VARIABLE}")
-    # print(f"[DEBUG]: {OUTPUT_PATH_VARIABLE}")
+#     # print(f"[DEBUG]: {SIBR_APP__PATH_VARIABLE}")
+#     # print(f"[DEBUG]: {DATASET_PATH_VARIABLE}")
+#     # print(f"[DEBUG]: {fh.get_output()}")
 
 
 def locate_paths_menu():
@@ -53,20 +47,17 @@ def locate_paths_menu():
         
         elif choice==1:
             fh.locate_dataset()
-            get_json_paths()
         
         elif choice==2:
             fh.locate_output()
-            get_json_paths()
         
         elif choice==3:
             fh.locate_SIBR()
-            get_json_paths()
         
         elif choice==4:
-            print(f"OUTPUT FOLDER: {OUTPUT_PATH_VARIABLE}")
-            print(f"DATASET FOLDER: {DATASET_PATH_VARIABLE}")
-            print(f"SIBR FOLDER: {SIBR_APP__PATH_VARIABLE}")
+            print(f"DATASET FOLDER: {fh.get_dataset()}")
+            print(f"OUTPUT FOLDER: {fh.get_output()}")
+            print(f"SIBR FOLDER: {fh.get_sibr()}")
             
         elif choice == 5:
             return
@@ -74,13 +65,6 @@ def locate_paths_menu():
             pass    
         
 def main_menu():
-    # user menu contains
-    # 1. convert dataset to point cloud
-    # 2. train the model
-    # 3. launch SIRB viewer
-    # 4. locate dataset, output or SIBR viewer
-    # 5. exit
-    get_json_paths()
     while(True):
         inputs=(1,2,3,4,5)
         print("""
@@ -102,7 +86,7 @@ def main_menu():
             continue
         
         if choice==1:
-            auto.convert_point_cloud(DATASET_PATH_VARIABLE)
+            auto.convert_point_cloud(fh.get_dataset())
             
         
         elif choice==2:
@@ -121,11 +105,11 @@ def main_menu():
                 savePoints=5,000
             
             vram_csv_name = input("Enter the name of CSV file record(default=current_timestamp): ")
-            auto.train(DATASET_PATH_VARIABLE,OUTPUT_PATH_VARIABLE,vram_csv_name,iterations,savePoints)
+            auto.train(fh.get_dataset(),fh.get_output(),vram_csv_name,iterations,savePoints)
             
         
         elif choice==3:
-            auto.launch_viewer(OUTPUT_PATH_VARIABLE,SIBR_APP__PATH_VARIABLE)
+            auto.launch_viewer(fh.get_output(),fh.get_sibr())
         
         elif choice==4:
             locate_paths_menu()
