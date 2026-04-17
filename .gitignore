@@ -28,3 +28,6 @@ output/**/*
 
 # 3. Whitelist ONLY the results.json files
 !output/**/results.json
+
+# Remove the .pkl file
+*.pkl
