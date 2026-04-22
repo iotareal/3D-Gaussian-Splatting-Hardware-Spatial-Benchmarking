@@ -7,9 +7,6 @@ gaussian-splatting/output/
 # --- Environment & Binaries ---
 # Ignore the SIBR viewer and its massive DLLs
 .vscode/
-SIBR/
-*.dll
-*.exe
 
 # --- Python & System Junk ---
 __pycache__/
@@ -25,9 +22,15 @@ output/**/*
 
 # 2. Allow Git to "look" into subdirectories (required to find the file)
 !output/**/
+output/**/point_cloud
+output/**/test
 
 # 3. Whitelist ONLY the results.json files
 !output/**/results.json
 
+
 # Remove the .pkl file
 *.pkl
+
+# misc
+gaussian-splatting/SIBR_viewers

@@ -1,84 +1,118 @@
 import subprocess
 import sys
-import os
 from pathlib import Path
 
-from Benchmarking.training_time import BenchmarkTime
-from Benchmarking.vram_monitor_util import VRAMMonitor
+from Benchmarking.gpu_monitor_util import GPUMonitor
+from AutomatedPipeline.file_handler import convert_metrics
 
-GS_ROOT = Path(os.getcwd()) /"gaussian-splatting"
+IS_WINDOWS = sys.platform.startswith('win')
+
+GS_ROOT = Path.cwd() / "gaussian-splatting"
+CONVERT_PY = GS_ROOT / "convert.py"
+TRAIN_PY = GS_ROOT / "train.py"
+RENDER_PY = GS_ROOT / "render.py"
+METRICS_PY = GS_ROOT / "metrics.py"
 
 def convert_point_cloud(dataset_path):
-    # RUNS
-    # python gaussian-splatting/convert.py -s <path_to_dataset>
+    # For preprocessing only
     
     if(Path(dataset_path)/"sparse").is_dir():
-        print("SfM data found. Skipping conversion operation")
+        print("Dataset is already preprocessed.")
         return
         
-    cmd=f'python "{str(Path(GS_ROOT/"convert.py"))}" -s "{str(dataset_path)}"'
+    cmd=[
+        sys.executable, 
+        str(CONVERT_PY),
+        "-s",
+        str(dataset_path)
+    ]
+    
     try:
-        subprocess.run(
-            cmd, 
-            shell=True, 
-            check=True, 
-            cwd=str(GS_ROOT) 
-        )
-        print("\nConversion Complete! Check your 'images' and 'sparse' folders.")
+        if IS_WINDOWS:
+            subprocess.run(cmd,shell=True)
+            print("Conversion Complete")
+        else:
+            print("")
     except subprocess.CalledProcessError as e:
-        print(f"\nPipeline failed to run COLMAP: {e}")
+        print(f"Pipeline failed to run COLMAP: {e}")
 
-def train(dataset_path,output_path,filename,iterations=30000,checkpoints=5000):
-    # RUNS
-    # python gaussian-splatting/train.py -s <path_to_dataset> -m <path_to_output_folder> --iterations 30000
-
-    # CHANGE CHECKPOINT LOGIC
-    # CHANGE CHECKPOINT LOGIC
-    # CHANGE CHECKPOINT LOGIC
-    # CHANGE CHECKPOINT LOGIC
-    # CHANGE CHECKPOINT LOGIC
-    # save_points = chkpt 1 chkpt 2 .... chkpt n
-    checkpoints = list(str(i) for i in range(1,iterations) if i%checkpoints == 0)
+def train(dataset_path,output_path,filename,iterations=30000,checkpoints=6,resolution = None):
+    
+    checkpoints = list(str(i) for i in range(1,iterations) if i % (iterations/checkpoints) == 0)
     cmd = [
         sys.executable,  
-        str(Path(GS_ROOT) / "train.py"),
+        str(TRAIN_PY),
         "-s", str(dataset_path),
         "-m", str(output_path),
         "--iterations", str(iterations),
         "--eval",
-        "--save_iterations"
     ]
+    
+    cmd.append("--save_iterations")
     cmd.extend(checkpoints)
+    
+    cmd.append("--test_iterations")
+    cmd.extend(checkpoints)
+    
+    if resolution:
+        cmd.extend(["--resolution",str(resolution)])
     checkpoints.append(iterations)
-    with BenchmarkTime(),(VRAMMonitor(filename) if filename else VRAMMonitor()):
-        result = subprocess.run(cmd,shell=True)
+    try:
+        with (GPUMonitor(filename) if filename else GPUMonitor()):
+            if IS_WINDOWS:
+                result = subprocess.run(cmd,shell=True)
+            else:
+                result = subprocess.run(cmd)
+            
+    except subprocess.CalledProcessError as e:
+            
+            if e.returncode == -9:
+                print("ERROR: Ran out of Video Memory")
+            else:
+                print(f"Training Crashed! The 3DGS script returned error code: {e.returncode}")
+
+    except KeyboardInterrupt:
+            print("Training manually aborted.")
+            print("Returning to main menu...")
+
+    except PermissionError:
+            print(" Permission Denied! system blocked execution.")
+
+    except Exception as e:
+            print(f"An unexpected system error occurred: {e}")
+    
     if result.returncode == 0:     
-        evaluate_model(output_path,checkpoints)
+            evaluate_model(output_path,checkpoints)
+    
 
 def launch_viewer(output_path,sibr_viewer):
-    # RUNS
-    # SIBR_gaussianViewer_app.exe -m <path_to_model>
-    cmd=(str(sibr_viewer),"-m",str(output_path))
+    if not IS_WINDOWS:
+        print("Current System is not windows")
+        return
+    cmd=[
+        str(sibr_viewer),
+        "-m", str(output_path)
+    ]
+    
     subprocess.run(cmd,check=True)
 
 def evaluate_model(output_path,save_points):
     for checkpoint in save_points:
         print(f"\n--- Rendering Test Views for Checkpoint: {checkpoint} ---")
-        # cmd = f'python "{str(Path(GS_ROOT / "render.py"))}" -m "{output_path}" --skip_train'
         eval_cmd = [
             sys.executable,
-            str(Path(GS_ROOT / "render.py")),
-            "-m",output_path,
+            str(RENDER_PY),
+            "-m", str(output_path),
             "--iteration",str(checkpoint),
             "--skip_train"
         ]
         subprocess.run(eval_cmd, shell=True)
         
     print(f"\n--- Calculating PSNR/SSIM/LPIPS for Checkpoint: {checkpoint} ---")
-    # metrics_cmd = f'python "{str(Path(GS_ROOT / "metrics.py"))}" -m "{output_path}"'
     metrics_cmd = [
         sys.executable,
-        str(Path(GS_ROOT / "metrics.py")),
-        "-m",output_path
+        str(METRICS_PY),
+        "-m", str(output_path)
     ]
     subprocess.run(metrics_cmd, shell=True)
+    convert_metrics()

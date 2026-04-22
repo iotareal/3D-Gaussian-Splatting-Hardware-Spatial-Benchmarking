@@ -2,25 +2,6 @@ from AutomatedPipeline import automated as auto
 from AutomatedPipeline import file_handler as fh
 
 
-# Path variables
-
-
-# def get_json_paths():
-#     data=fh.get_paths()
-#     fh.check_paths(data)
-#     global SIBR_APP__PATH_VARIABLE
-#     global DATASET_PATH_VARIABLE
-#     global fh.get_output()
-    
-#     SIBR_APP__PATH_VARIABLE = data[SIBR_APP__PATH_LABEL]
-#     DATASET_PATH_VARIABLE = data[DATASET_PATH_LABEL]
-#     fh.get_output() = data[OUTPUT_PATH_LABEL]
-    
-#     # print(f"[DEBUG]: {SIBR_APP__PATH_VARIABLE}")
-#     # print(f"[DEBUG]: {DATASET_PATH_VARIABLE}")
-#     # print(f"[DEBUG]: {fh.get_output()}")
-
-
 def locate_paths_menu():
     # user "locate" contains
     # 1. dataset
@@ -60,6 +41,7 @@ def locate_paths_menu():
             print(f"SIBR FOLDER: {fh.get_sibr()}")
             
         elif choice == 5:
+            fh.save_paths()
             return
         else:
             pass    
@@ -102,10 +84,14 @@ def main_menu():
                 savePoints=int(input("Checkpoints(default=5,000): "))
             except Exception:
                 print("Invalid Value entered: Checkpoints will be saved to default 5,000 ")
-                savePoints=5,000
+                savePoints=5000
             
+            try:
+                resolution = int(input("Specify build resolution(leave empty if you don't know what it does): "))
+            except Exception:
+                resolution = None
             vram_csv_name = input("Enter the name of CSV file record(default=current_timestamp): ")
-            auto.train(fh.get_dataset(),fh.get_output(),vram_csv_name,iterations,savePoints)
+            auto.train(fh.get_dataset(),fh.get_output(),vram_csv_name,iterations,savePoints,resolution)
             
         
         elif choice==3:
