@@ -9,14 +9,14 @@ import json
 import pickle
 
 IS_WINDOWS = sys.platform.startswith('win')
+CONFIG_FILE = Path(__file__) .parent.parent / "path_state.pkl"
 
 def __get_paths() -> LocalPaths:
-    config_file = Path.cwd() / "custom-pipeline" / "path_state.pkl"
-    if not config_file.exists():
-        with open(config_file,'x'):
+    if not CONFIG_FILE.exists():
+        with open(CONFIG_FILE,'x'):
             pass
     
-    with open(config_file,"rb") as file:
+    with open(CONFIG_FILE,"rb") as file:
         try:
             return pickle.load(file)
         except EOFError:
@@ -31,7 +31,7 @@ def locate_dataset(custom_title="Locate \'dataset\' folder"):
     root.withdraw() 
     root.attributes('-topmost', True)
     
-    path = filedialog.askdirectory(title=custom_title,initialdir=Path.cwd())
+    path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
     root.destroy()
     
     if not path:
@@ -49,7 +49,7 @@ def locate_output(custom_title="Locate \'output\' folder") -> str:
     root.withdraw() 
     root.attributes('-topmost', True)
     
-    path = filedialog.askdirectory(title=custom_title,initialdir=Path.cwd())
+    path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
     root.destroy()
     
     if not path:
@@ -67,7 +67,7 @@ def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
     root.withdraw() 
     root.attributes('-topmost', True)
     
-    path = filedialog.askopenfilename(filetypes=[("Application", "*.exe")],title=custom_title,initialdir=Path.cwd())
+    path = filedialog.askopenfilename(filetypes=[("Application", "*.exe")],title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
     root.destroy()
     
     if not path:
@@ -81,9 +81,8 @@ def get_sibr():
     return LOADED_PATHS.get_sibr_path()
 
 def save_paths():
-    config_file = Path.cwd() / "custom-pipeline" / "path_state.pkl"
     
-    with open(config_file,'wb') as file:
+    with open(CONFIG_FILE,'wb') as file:
         pickle.dump(LOADED_PATHS,file)
         print("Paths saved to \'path_state.pkl\'.")
 

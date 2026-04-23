@@ -8,8 +8,8 @@ from datetime import datetime
 
 
 class GPUMonitor:
-    def __init__(self,filename=datetime.now().strftime('%Y-%m-%d_%H-%M-%S')):
-        self.log_path = Path.cwd() / "custom-pipeline" / "Benchmarking" / "GPU_logs" / f"{filename}.csv"
+    def __init__(self,filename):
+        self.log_path = Path(__file__).parent / "GPU_logs" / f"{filename}.csv"
         os.makedirs(self.log_path.parent, exist_ok=True)
         print(f"----   Now Logging: {filename}.csv   ----")
     

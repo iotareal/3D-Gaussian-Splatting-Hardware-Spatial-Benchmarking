@@ -7,7 +7,7 @@ from AutomatedPipeline.file_handler import convert_metrics
 
 IS_WINDOWS = sys.platform.startswith('win')
 
-GS_ROOT = Path.cwd() / "gaussian-splatting"
+GS_ROOT = Path(__file__).parent.parent.parent / "gaussian-splatting"
 CONVERT_PY = GS_ROOT / "convert.py"
 TRAIN_PY = GS_ROOT / "train.py"
 RENDER_PY = GS_ROOT / "render.py"
@@ -36,9 +36,9 @@ def convert_point_cloud(dataset_path):
     except subprocess.CalledProcessError as e:
         print(f"Pipeline failed to run COLMAP: {e}")
 
-def train(dataset_path,output_path,filename,iterations=30000,checkpoints=6,resolution = None):
+def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution = None):
     
-    checkpoints = list(str(i) for i in range(1,iterations) if i % (iterations/checkpoints) == 0)
+    checkpoints = list(str(i) for i in range(checkpoints,iterations,checkpoints))
     cmd = [
         sys.executable,  
         str(TRAIN_PY),
@@ -58,7 +58,7 @@ def train(dataset_path,output_path,filename,iterations=30000,checkpoints=6,resol
         cmd.extend(["--resolution",str(resolution)])
     checkpoints.append(iterations)
     try:
-        with (GPUMonitor(filename) if filename else GPUMonitor()):
+        with (GPUMonitor(Path(output_path).name)):
             if IS_WINDOWS:
                 result = subprocess.run(cmd,shell=True)
             else:

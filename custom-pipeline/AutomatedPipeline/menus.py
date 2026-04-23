@@ -90,8 +90,7 @@ def main_menu():
                 resolution = int(input("Specify build resolution(leave empty if you don't know what it does): "))
             except Exception:
                 resolution = None
-            vram_csv_name = input("Enter the name of CSV file record(default=current_timestamp): ")
-            auto.train(fh.get_dataset(),fh.get_output(),vram_csv_name,iterations,savePoints,resolution)
+            auto.train(fh.get_dataset(),fh.get_output(),iterations,savePoints,resolution)
             
         
         elif choice==3:
