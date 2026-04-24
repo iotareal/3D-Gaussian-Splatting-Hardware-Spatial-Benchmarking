@@ -26,15 +26,27 @@ def __get_paths() -> LocalPaths:
 #Initializing Paths
 LOADED_PATHS = __get_paths()
 
-def locate_dataset(custom_title="Locate \'dataset\' folder"):
-    root = tk.Tk()
-    root.withdraw() 
-    root.attributes('-topmost', True)
+def locate_dataset(is_ssh,custom_title="Locate \'dataset\' folder"):
+    path = None
+    if is_ssh:
+        path = input("Enter absolute path to dataset folder: ").strip('\'" ')
+        if not path:
+            print("You did not select any dataset folder")
+            return
+        else:
+            path = Path(path)
+        if not path.exists():
+            print("Error: dataset folder does not exist, please check the path again")
+            return
+    else:
+        root = tk.Tk()
+        root.withdraw() 
+        root.attributes('-topmost', True)
+        
+        path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
+        root.destroy()
     
-    path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
-    root.destroy()
-    
-    if not path:
+    if not path or str(path) == ".":
         print("You did not selected any path for dataset, path left unchanged")
         return
     
@@ -44,15 +56,29 @@ def locate_dataset(custom_title="Locate \'dataset\' folder"):
 def get_dataset():
     return LOADED_PATHS.get_dataset_path()
 
-def locate_output(custom_title="Locate \'output\' folder") -> str:
-    root = tk.Tk()
-    root.withdraw() 
-    root.attributes('-topmost', True)
+def locate_output(is_ssh,custom_title="Locate \'output\' folder") -> str:
+    path = None
+    if is_ssh:
+        path = input("Enter absolute path to output folder: ").strip('\'" ')
+        if not path:
+            print("You did not select any output folder")
+            return
+        else:
+            path = Path(path)
+            if not path.parent.exists():
+                print("output folder does not exists")
+            if not path.exists():
+                path.mkdir(parents=True,exist_ok=True)
+                print(f"created directory for {path.name}")
+    else:
+        root = tk.Tk()
+        root.withdraw() 
+        root.attributes('-topmost', True)
+        
+        path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
+        root.destroy()
     
-    path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
-    root.destroy()
-    
-    if not path:
+    if not path or str(path) == ".":
         print("You did not selected any path for output, path left unchanged")
         return
     
@@ -62,7 +88,11 @@ def locate_output(custom_title="Locate \'output\' folder") -> str:
 def get_output():
     return LOADED_PATHS.get_output_path()
 
-def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
+def locate_SIBR(is_ssh,custom_title="Locate \'SIBR Viewer\' application"):
+    if is_ssh:
+        print("Running Pipeline via SSH cannot use SIBR viewer")
+        return
+        
     root = tk.Tk()
     root.withdraw() 
     root.attributes('-topmost', True)
@@ -70,7 +100,7 @@ def locate_SIBR(custom_title="Locate \'SIBR Viewer\' application") -> str:
     path = filedialog.askopenfilename(filetypes=[("Application", "*.exe")],title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
     root.destroy()
     
-    if not path:
+    if not path or str(path) == ".":
         print("You did not selected any path for SIBR viewer, path left unchanged")
         return
     

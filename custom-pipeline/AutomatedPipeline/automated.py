@@ -16,6 +16,9 @@ METRICS_PY = GS_ROOT / "metrics.py"
 def convert_point_cloud(dataset_path):
     # For preprocessing only
     
+    if not Path(dataset_path).exists():
+        print("Cannot find dataset at specified location, need to select dataset again")
+        return
     if(Path(dataset_path)/"sparse").is_dir():
         print("Dataset is already preprocessed.")
         return
@@ -37,7 +40,12 @@ def convert_point_cloud(dataset_path):
         print(f"Pipeline failed to run COLMAP: {e}")
 
 def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution = None):
-    
+    if not Path(dataset_path).exists():
+        print("Cannot find dataset at specified location, need to select dataset again")
+        return
+    if not Path(output_path).exists():
+        print("Cannot find output at specified location, need to select output folder again")
+        return
     checkpoints = list(str(i) for i in range(checkpoints,iterations,checkpoints))
     cmd = [
         sys.executable,  
@@ -85,9 +93,17 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
             evaluate_model(output_path,checkpoints)
     
 
-def launch_viewer(output_path,sibr_viewer):
+def launch_viewer(is_ssh,output_path,sibr_viewer):
     if not IS_WINDOWS:
-        print("Current System is not windows")
+        print("Current System is not windows cannot use SIBR viewer")
+        return
+    
+    if is_ssh:
+        print("Running Pipeline via SSH cannot use SIBR viewer")
+        return
+    
+    if not Path(sibr_viewer).exists():
+        print("Cannot find SIBR viewer at specified location, need to select SIBR viewer application again")
         return
     cmd=[
         str(sibr_viewer),

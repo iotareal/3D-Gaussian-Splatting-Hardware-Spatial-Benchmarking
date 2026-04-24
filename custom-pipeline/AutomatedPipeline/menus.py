@@ -2,7 +2,7 @@ from AutomatedPipeline import automated as auto
 from AutomatedPipeline import file_handler as fh
 
 
-def locate_paths_menu():
+def locate_paths_menu(is_ssh = None):
     # user "locate" contains
     # 1. dataset
     # 2. output
@@ -27,13 +27,13 @@ def locate_paths_menu():
             continue
         
         elif choice==1:
-            fh.locate_dataset()
+            fh.locate_dataset(is_ssh)
         
         elif choice==2:
-            fh.locate_output()
+            fh.locate_output(is_ssh)
         
         elif choice==3:
-            fh.locate_SIBR()
+            fh.locate_SIBR(is_ssh)
         
         elif choice==4:
             print(f"DATASET FOLDER: {fh.get_dataset()}")
@@ -46,7 +46,7 @@ def locate_paths_menu():
         else:
             pass    
         
-def main_menu():
+def main_menu(is_ssh=False):
     while(True):
         inputs=(1,2,3,4,5)
         print("""
@@ -94,10 +94,10 @@ def main_menu():
             
         
         elif choice==3:
-            auto.launch_viewer(fh.get_output(),fh.get_sibr())
+            auto.launch_viewer(is_ssh,fh.get_output(),fh.get_sibr())
         
         elif choice==4:
-            locate_paths_menu()
+            locate_paths_menu(is_ssh)
         
         elif choice==5:
             return 0

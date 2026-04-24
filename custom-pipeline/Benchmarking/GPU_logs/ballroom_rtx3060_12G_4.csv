@@ -1,0 +1,6 @@
+Time_Minutes,Memory_Used_MiB,GPU_Utilization_Pct,Power_Watts
+0.0001,286,0,8.37
+0.0187,286,1,8.53
+0.0362,286,1,8.36
+0.0535,294,1,8.45
+0.0708,277,0,9.81
