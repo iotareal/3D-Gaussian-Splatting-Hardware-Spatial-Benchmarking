@@ -1,0 +1,37 @@
+# --- 3DGS Research Data (The heavy stuff) ---
+# Ignore raw photos and COLMAP data
+datasets/
+dataset/
+gaussian-splatting/output/
+**/iteration_*/
+
+# --- Environment & Binaries ---
+# Ignore the SIBR viewer and its massive DLLs
+.vscode/
+
+# --- Python & System Junk ---
+__pycache__/
+*.pyc
+.venv/
+.env
+.vscode/
+.idea/
+.DS_Store
+# --- only push results.json
+# 1. Ignore everything inside the output folder recursively
+output/**/*
+
+# 2. Allow Git to "look" into subdirectories (required to find the file)
+!output/**/
+output/**/point_cloud
+output/**/test
+
+# 3. Whitelist ONLY the results.json files
+!output/**/results.json
+
+
+# Remove the .pkl file
+*.pkl
+
+# misc
+gaussian-splatting/SIBR_viewers
