@@ -32,7 +32,7 @@ def convert_point_cloud(dataset_path):
     
     try:
         if IS_WINDOWS:
-            subprocess.run(cmd,shell=True)
+            subprocess.run(cmd,shell=True, check=True)
             print("Conversion Complete")
         else:
             print("")
@@ -68,9 +68,9 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
     try:
         with (GPUMonitor(Path(output_path).name)):
             if IS_WINDOWS:
-                result = subprocess.run(cmd,shell=True)
+                result = subprocess.run(cmd,shell=True, check=True)
             else:
-                result = subprocess.run(cmd)
+                result = subprocess.run(cmd, check=True)
             
     except subprocess.CalledProcessError as e:
             
@@ -78,16 +78,20 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
                 print("ERROR: Ran out of Video Memory")
             else:
                 print(f"Training Crashed! The 3DGS script returned error code: {e.returncode}")
+                return
 
     except KeyboardInterrupt:
             print("Training manually aborted.")
             print("Returning to main menu...")
+            return
 
     except PermissionError:
             print(" Permission Denied! system blocked execution.")
+            return
 
     except Exception as e:
             print(f"An unexpected system error occurred: {e}")
+            return
     
     if result.returncode == 0:     
             evaluate_model(output_path,checkpoints)
@@ -122,7 +126,7 @@ def evaluate_model(output_path,save_points):
             "--iteration",str(checkpoint),
             "--skip_train"
         ]
-        subprocess.run(eval_cmd, shell=True)
+        subprocess.run(eval_cmd, shell=True, check=True)
         
     print(f"\n--- Calculating PSNR/SSIM/LPIPS for Checkpoint: {checkpoint} ---")
     metrics_cmd = [
@@ -130,5 +134,5 @@ def evaluate_model(output_path,save_points):
         str(METRICS_PY),
         "-m", str(output_path)
     ]
-    subprocess.run(metrics_cmd, shell=True)
+    subprocess.run(metrics_cmd, shell=True, check=True)
     convert_metrics()
