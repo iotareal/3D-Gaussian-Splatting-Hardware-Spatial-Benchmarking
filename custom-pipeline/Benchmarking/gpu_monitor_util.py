@@ -11,13 +11,12 @@ class GPUMonitor:
     def __init__(self,filename):
         self.log_path = Path(__file__).parent / "GPU_logs" / f"{filename}.csv"
         os.makedirs(self.log_path.parent, exist_ok=True)
-        print(f"----   Now Logging: {filename}.csv   ----")
+        print(f"----   Now Logging: {self.log_path.name}   ----")
     
         if not self.log_path.exists():
             with open(self.log_path, 'x') as f:
                 pass
-        
-        self.log_name = str(self.log_path) 
+            
         self.is_running = False
         self.thread = None
         self.start_time = None
@@ -37,17 +36,28 @@ class GPUMonitor:
             self.thread.join()
             
         if exc_type is not None:
-            self.__delete_log()
-            print(f"GPU log: '{self.log_name}' has been deleted due to failed run")
-            return
+            if issubclass(exc_type,KeyboardInterrupt):
+                self.__rename_log(prefix="interrupt")
+                print(f"Training Interrupted log saved as {self.log_path.name}")
+                return False
+            elif issubclass(exc_type,subprocess.CalledProcessError):
+                self.__rename_log(prefix="cudaoom")
+                print(f"CUDA Out of memory log saved as {self.log_path.name}")
+                return False
+            else:
+                self.__rename_log(prefix="error")
+                print(f"Training Failed log saved as {self.log_path.name}")
+                return False
             
-        print(f"VRAM log finalized: {self.log_name}")
+        print(f"VRAM log finalized: {self.log_path.name}")
         
-    def __delete_log(self):
-        self.log_path.unlink(missing_ok=True)
+    def __rename_log(self,prefix):
+        if self.log_path.exists():
+            new_path = self.log_path.with_name(f"{prefix}_{self.log_path.name}")
+            self.log_path.rename(new_path)
 
     def _log_loop(self):
-        with open(self.log_name, 'w', newline='') as f:
+        with open(str(self.log_path.name), 'w', newline='') as f:
             writer = csv.writer(f)
             
             writer.writerow(["Time_Minutes", "Memory_Used_MiB", "GPU_Utilization_Pct", "Power_Watts"])

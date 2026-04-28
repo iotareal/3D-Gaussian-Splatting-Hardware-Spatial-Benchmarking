@@ -15,6 +15,9 @@ METRICS_PY = GS_ROOT / "metrics.py"
 
 def convert_point_cloud(dataset_path):
     # For preprocessing only
+    if not IS_WINDOWS:
+        print("Colmap preprocessing is available for Windows only")
+        return
     
     if not Path(dataset_path).exists():
         print("Cannot find dataset at specified location, need to select dataset again")
@@ -31,11 +34,7 @@ def convert_point_cloud(dataset_path):
     ]
     
     try:
-        if IS_WINDOWS:
-            subprocess.run(cmd,shell=True, check=True)
-            print("Conversion Complete")
-        else:
-            print("")
+        subprocess.run(cmd,shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Pipeline failed to run COLMAP: {e}")
 
@@ -99,7 +98,7 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
 
 def launch_viewer(is_ssh,output_path,sibr_viewer):
     if not IS_WINDOWS:
-        print("Current System is not windows cannot use SIBR viewer")
+        print("SIBR viewer is only available in Windows")
         return
     
     if is_ssh:
@@ -114,7 +113,7 @@ def launch_viewer(is_ssh,output_path,sibr_viewer):
         "-m", str(output_path)
     ]
     
-    subprocess.run(cmd,check=True)
+    subprocess.run(cmd,check=True,shell=True)
 
 def evaluate_model(output_path,save_points):
     for checkpoint in save_points:
@@ -126,7 +125,10 @@ def evaluate_model(output_path,save_points):
             "--iteration",str(checkpoint),
             "--skip_train"
         ]
-        subprocess.run(eval_cmd, shell=True, check=True)
+        if IS_WINDOWS:
+            subprocess.run(eval_cmd, shell=True, check=True)
+        else:
+            subprocess.run(eval_cmd,check=True)
         
     print(f"\n--- Calculating PSNR/SSIM/LPIPS for Checkpoint: {checkpoint} ---")
     metrics_cmd = [
@@ -134,5 +136,8 @@ def evaluate_model(output_path,save_points):
         str(METRICS_PY),
         "-m", str(output_path)
     ]
-    subprocess.run(metrics_cmd, shell=True, check=True)
+    if IS_WINDOWS:
+        subprocess.run(metrics_cmd, shell=True, check=True)
+    else:
+        subprocess.run(metrics_cmd, check=True)
     convert_metrics()

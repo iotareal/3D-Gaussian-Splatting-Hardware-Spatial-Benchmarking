@@ -42,8 +42,10 @@ def locate_dataset(is_ssh,custom_title="Locate \'dataset\' folder"):
         root = tk.Tk()
         root.withdraw() 
         root.attributes('-topmost', True)
-        
-        path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
+        initdir = Path(__file__) .parent.parent.parent / "dataset"
+        if not initdir.exists():
+            initdir = Path(__file__) .parent.parent.parent
+        path = filedialog.askdirectory(title=custom_title,initialdir=initdir)
         root.destroy()
     
     if not path or str(path) == ".":
@@ -75,7 +77,10 @@ def locate_output(is_ssh,custom_title="Locate \'output\' folder") -> str:
         root.withdraw() 
         root.attributes('-topmost', True)
         
-        path = filedialog.askdirectory(title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
+        initdir = Path(__file__) .parent.parent.parent / "output"
+        if not initdir.exists():
+            initdir = Path(__file__) .parent.parent.parent
+        path = filedialog.askdirectory(title=custom_title,initialdir=initdir)
         root.destroy()
     
     if not path or str(path) == ".":
@@ -96,8 +101,10 @@ def locate_SIBR(is_ssh,custom_title="Locate \'SIBR Viewer\' application"):
     root = tk.Tk()
     root.withdraw() 
     root.attributes('-topmost', True)
-    
-    path = filedialog.askopenfilename(filetypes=[("Application", "*.exe")],title=custom_title,initialdir=Path(__file__) .parent.parent.parent)
+    initdir = Path(__file__) .parent.parent.parent / "viewers"
+    if not initdir.exists():
+        initdir = Path(__file__) .parent.parent.parent
+    path = filedialog.askopenfilename(filetypes=[("Application", "*.exe")],title=custom_title,initialdir=initdir)
     root.destroy()
     
     if not path or str(path) == ".":
