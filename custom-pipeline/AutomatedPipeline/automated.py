@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from Benchmarking.gpu_monitor_util import GPUMonitor
@@ -65,11 +66,61 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
         cmd.extend(["--resolution",str(resolution)])
     checkpoints.append(iterations)
     try:
-        with (GPUMonitor(Path(output_path).name)):
-            if IS_WINDOWS:
-                result = subprocess.run(cmd,shell=True, check=True)
-            else:
-                result = subprocess.run(cmd, check=True)
+        with GPUMonitor(str(output_path.name)):
+            process = subprocess.Popen(
+                cmd,
+                shell=IS_WINDOWS,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                universal_newlines=True
+            )
+
+            last_line = 0
+            while True:
+                line = process.stdout.readline()
+                if not line and process.poll() is not None:
+                    break 
+
+                if line:
+                    current_time = time.time()
+                    if current_time - last_line >= 60:
+                        print(line.strip())
+                        last_line = current_time
+
+                    if "<" in line and "it/s" in line:
+                        try:
+                            eta_str = line.split("<")[1].split(",")[0].strip()
+                            
+                            parts = eta_str.split(":")
+                            
+                            hours = 0
+                            minutes = 0
+                            seconds = 0
+                            if len(parts) == 3:
+                                hours = int(parts[0])
+                                minutes = int(parts[1])
+                                seconds = int(parts[2])
+                            
+                            elif len(parts) == 2:
+                                minutes = int(parts[0])
+                                seconds = int(parts[1])
+                            
+                            elif len(parts) == 1:
+                                seconds = int(parts[0])
+                                
+                            kill_time = hours + (minutes/60) + (seconds/3600)
+                            limit = 3
+                            if kill_time >= limit:
+                                print(f"ETA ({eta_str}) exceeded from {limit} hours to {kill_time:.2f}, Training Aborted")
+                                process.kill() # Terminate the subprocess
+                                raise KeyboardInterrupt # Trigger your __exit__ 'exceeded' logic!
+                        except Exception:
+                            pass
+
+            if process.returncode != 0 and process.returncode is not None:
+                # We manually trigger the error so your __exit__ can rename it to "oom_"
+                raise subprocess.CalledProcessError(process.returncode, cmd)
             
     except subprocess.CalledProcessError as e:
             
@@ -80,7 +131,6 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
                 return
 
     except KeyboardInterrupt:
-            print("Training manually aborted.")
             print("Returning to main menu...")
             return
 
@@ -92,7 +142,7 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
             print(f"An unexpected system error occurred: {e}")
             return
     
-    if result.returncode == 0:     
+    if process.returncode == 0:     
             evaluate_model(output_path,checkpoints)
     
 
@@ -125,10 +175,7 @@ def evaluate_model(output_path,save_points):
             "--iteration",str(checkpoint),
             "--skip_train"
         ]
-        if IS_WINDOWS:
-            subprocess.run(eval_cmd, shell=True, check=True)
-        else:
-            subprocess.run(eval_cmd,check=True)
+        subprocess.run(eval_cmd, shell=IS_WINDOWS, check=True)
         
     print(f"\n--- Calculating PSNR/SSIM/LPIPS for Checkpoint: {checkpoint} ---")
     metrics_cmd = [
@@ -136,8 +183,5 @@ def evaluate_model(output_path,save_points):
         str(METRICS_PY),
         "-m", str(output_path)
     ]
-    if IS_WINDOWS:
-        subprocess.run(metrics_cmd, shell=True, check=True)
-    else:
-        subprocess.run(metrics_cmd, check=True)
+    subprocess.run(metrics_cmd, shell=IS_WINDOWS, check=True)
     convert_metrics()

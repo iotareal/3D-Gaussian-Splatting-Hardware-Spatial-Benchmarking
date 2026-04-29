@@ -14,7 +14,7 @@ class GPUMonitor:
         print(f"----   Now Logging: {self.log_path.name}   ----")
     
         if not self.log_path.exists():
-            with open(self.log_path, 'x') as f:
+            with open(self.log_path, 'w') as f:
                 pass
             
         self.is_running = False
@@ -37,16 +37,16 @@ class GPUMonitor:
             
         if exc_type is not None:
             if issubclass(exc_type,KeyboardInterrupt):
-                self.__rename_log(prefix="interrupt")
-                print(f"Training Interrupted log saved as {self.log_path.name}")
+                new = self.__rename_log(prefix="exceeded").name
+                print(f"Training Interrupted log saved as {new}")
                 return False
             elif issubclass(exc_type,subprocess.CalledProcessError):
-                self.__rename_log(prefix="cudaoom")
-                print(f"CUDA Out of memory log saved as {self.log_path.name}")
+                new = self.__rename_log(prefix="cudaoom").name
+                print(f"CUDA Out of memory log saved as {new}")
                 return False
             else:
-                self.__rename_log(prefix="error")
-                print(f"Training Failed log saved as {self.log_path.name}")
+                new = self.__rename_log(prefix="error").name
+                print(f"Training Failed log saved as {new}")
                 return False
             
         print(f"VRAM log finalized: {self.log_path.name}")
@@ -54,10 +54,10 @@ class GPUMonitor:
     def __rename_log(self,prefix):
         if self.log_path.exists():
             new_path = self.log_path.with_name(f"{prefix}_{self.log_path.name}")
-            self.log_path.rename(new_path)
+            return self.log_path.replace(new_path)
 
     def _log_loop(self):
-        with open(str(self.log_path.name), 'w', newline='') as f:
+        with open(str(self.log_path), 'w', newline='') as f:
             writer = csv.writer(f)
             
             writer.writerow(["Time_Minutes", "Memory_Used_MiB", "GPU_Utilization_Pct", "Power_Watts"])
