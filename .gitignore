@@ -17,14 +17,9 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
-# --- only push results.json
-# 1. Ignore everything inside the output folder recursively
-output/**/*
 
-# 2. Allow Git to "look" into subdirectories (required to find the file)
-!output/**/
-output/**/point_cloud
-output/**/test
+#output folder
+output/
 
 # 3. Whitelist ONLY the results.json files
 !output/**/results.json
@@ -35,3 +30,6 @@ output/**/test
 
 # misc
 gaussian-splatting/SIBR_viewers
+
+# rar files for GD upload
+*.rar
