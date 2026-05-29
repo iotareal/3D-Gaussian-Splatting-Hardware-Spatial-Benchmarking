@@ -1,5 +1,9 @@
 import argparse
-
+# (readme)
+# install pandas 
+# install pip install opencv-python psutil
+# install numpy<2
+# install pip install opencv-python-headless psutil
 from AutomatedPipeline import menus
 
 def main():

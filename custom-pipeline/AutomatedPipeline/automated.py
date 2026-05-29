@@ -67,6 +67,7 @@ def train(dataset_path,output_path,iterations=30000,checkpoints=5000,resolution 
     try:
         with GPUMonitor(str(output_path.name)):
             process = subprocess.run(cmd,check=True,shell=IS_WINDOWS)
+        
             
     except subprocess.CalledProcessError as e:
             
