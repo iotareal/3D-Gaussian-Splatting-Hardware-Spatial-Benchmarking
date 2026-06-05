@@ -112,7 +112,11 @@ def launch_viewer(is_ssh,output_path,sibr_viewer):
     
     subprocess.run(cmd,check=True,shell=True)
 
-def evaluate_model(output_path,save_points):
+def evaluate_model(output_path,save_points=None):
+    if not save_points:
+        path = Path(output_path) / "test"
+        save_points = tuple(sorted(int(iteration.name.removeprefix("ours_")) for iteration in path.iterdir()))
+        
     for checkpoint in save_points:
         print(f"\n--- Rendering Test Views for Checkpoint: {checkpoint} ---")
         eval_cmd = [

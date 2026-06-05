@@ -48,14 +48,15 @@ def locate_paths_menu(is_ssh = None):
         
 def main_menu(is_ssh=False):
     while(True):
-        inputs=(1,2,3,4,5)
+        inputs=(1,2,3,4,5,6)
         print("""
             3DGS custom-pipeline main menu
             1. Convert dataset to point cloud
             2. Train the model
             3. Launch SIRB viewer
             4. Locate dataset, output or SIBR viewer
-            5. exit
+            5. Evaluate final output
+            6. exit
             """)
         
         try:
@@ -100,6 +101,9 @@ def main_menu(is_ssh=False):
             locate_paths_menu(is_ssh)
         
         elif choice==5:
+            auto.evaluate_model(fh.get_output())
+        
+        elif choice==6:
             return 0
         
         else:
